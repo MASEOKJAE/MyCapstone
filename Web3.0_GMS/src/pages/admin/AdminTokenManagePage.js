@@ -200,18 +200,11 @@ export default function HomePage() {
   };
 
   
- 
-
-  const handleClickOpen = () => {
-    setOpen(true);
-    
-  };
 
   const handleClose = () => {
     setOpen(false);
     setForCreate(false);
     setForEdit(false);
-    
   };
 
   const [age, setAge] = React.useState('');
@@ -223,6 +216,7 @@ export default function HomePage() {
   const [openForCreate, setForCreate] = React.useState(false);
   const [openForEdit, setForEdit] = React.useState(false);
 
+
   const handleClickOpenForCreate = () => {
     setForCreate(true);
   }
@@ -231,20 +225,18 @@ export default function HomePage() {
     setForCreate(false);
   }
 
-  const handleClickOpenForEdit = () => {
-    setForEdit(true);
-  }
-
-  const handleCloseForEdit = () => {
-    setForEdit(false);
-  }
+  // const handleClickOpenForEdit = (tokenId) => {
+  //   setForEdit(true);
+  // }
   useEffect(() => {
-    axios.get('/a_dashboard/a_tokenmanage').then((response) => {
+    axios.get(`/a_dashboard/a_tokenmanage/`).then((response) => {
       setTokenList(response.data)
+    }).catch((error) => {
+      console.log(error);
     });
   }, [])
   
-  // Token 발행을 위한 구성
+  // Token 관리
 
   const [courseName, setCourseName] = useState("");
   const [section, setSection] = useState(0);
@@ -252,6 +244,9 @@ export default function HomePage() {
   const [tokenName, setTokenName] = useState("");
   // const [submitNum, setSubmitNum] = useState(0);
   const [totalScore, setTotalScore] = useState(0);
+  const [data, setData] = useState(null);
+
+   // Token 발행을 위한 구성
   
   const submitToken = () => {
     axios.post('/a_dashboard/a_tokenmanage', {
@@ -283,6 +278,34 @@ export default function HomePage() {
       });
   };
 
+  // Token 정보 수정을 위한 구성
+
+  const handleClickOpenForEdit = async (courseName, tokenName, section, totalScore) => {
+    setForEdit(true);
+    console.log("courseName: " + courseName);
+    console.log("tokenName: " + tokenName);
+    console.log("section: " + section);
+    console.log("totalScore: " + totalScore);
+    // console.log("tokenId: " + tokenId);
+    setCourseName(courseName);
+    setSection(section);
+    setTokenName(tokenName);
+    setTotalScore(totalScore);
+  }
+
+  const handleCloseForEdit = () => {
+    setForEdit(false);
+    
+  }
+
+  const handleUpdateData = async (tokenId) => {
+    try {
+      const response = await axios.put(`/a_dashboard/a_tokenmanage/${tokenId}`, data);
+      console.log(response.data); // 수정 성공 여부 출력
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <>
@@ -386,12 +409,12 @@ export default function HomePage() {
               </DialogActions>
             </Dialog>
         </Stack>
-
+        
         <Card>
         <AdminTokenToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
 
           {/* 변화를 줄 요소 */}
-          <Scrollbar>
+            <Scrollbar>
               <Table>
                 <TableHead>
                   <TableRow>
@@ -405,18 +428,102 @@ export default function HomePage() {
                 </TableHead>
                 <TableBody>
                   {list.map((row) => (
-                    <TableRow>
+                    <TableRow key={row.tokenID}>
                       <TableCell align='center'>{row.courseName}</TableCell>
                       <TableCell align='center'>{row.tokenName}</TableCell>
                       <TableCell align='center'>{row.Section}</TableCell>
                       <TableCell align='center'>{row.totalScore}</TableCell>
                       <TableCell align='center'>
-                        <Button onClick={goSyllabus}>수정</Button>
+                        <Button className='revision' onClick={() => handleClickOpenForEdit(row.courseName, row.tokenName, row.Section, row.totalScore)}>수정</Button>
+                        <Dialog open={openForEdit} onClose={handleCloseForEdit}>
+                          <DialogTitle>토큰 수정</DialogTitle>
+                          <DialogContent>
+                            <RadioGroup
+                              row
+                              aria-labelledby="demo-form-control-label-placement"
+                              name="position"
+                              defaultValue="homework"
+                            >
+                              <FormControlLabel
+                                value="homework"
+                                control={<Radio />}
+                                label="과제"
+                                labelPlacement="top"
+                              />
+                              <FormControlLabel
+                                value="exam"
+                                control={<Radio />}
+                                label="시험"
+                                labelPlacement="top"
+                              />
+                              <FormControlLabel
+                                value="quiz"
+                                control={<Radio />}
+                                label="퀴즈"
+                                labelPlacement="top"
+                              />
+                            </RadioGroup>
+                            <TextField
+                              autoFocus
+                              margin="dense"
+                              id="name"
+                              label="과목명"
+                              type="email"
+                              fullWidth
+                              variant="standard"
+                              value={courseName}
+                              onChange={(e) => {
+                                setCourseName(e.target.value);
+                              }}
+                            />
+                            <TextField
+                              autoFocus
+                              margin="dense"
+                              id="name"
+                              label="분반"
+                              type="email"
+                              fullWidth
+                              variant="standard"
+                              value={section}
+                              onChange={(e) => {
+                                setSection(e.target.value);
+                              }}
+                            />
+                            <TextField
+                              autoFocus
+                              margin="dense"
+                              id="name"
+                              label="토큰명"
+                              type="email"
+                              fullWidth
+                              variant="standard"
+                              value={tokenName}
+                              onChange={(e) => {
+                                setTokenName(e.target.value);
+                              }}
+                            />
+                            <TextField
+                              autoFocus
+                              margin="dense"
+                              id="name"
+                              label="점수"
+                              type="email"
+                              fullWidth
+                              variant="standard"
+                              value={totalScore}
+                              onChange={(e) => {
+                                setTotalScore(e.target.value);
+                              }}
+                            />
+                          </DialogContent>
+                          <DialogActions>
+                            <Button onClick={handleCloseForEdit}>취소</Button>
+                          </DialogActions>
+                        </Dialog>
                       </TableCell>
                       <TableCell align='center'>
                         <Button onClick={() => tokenDelete(row.tokenID)}>삭제</Button>
                       </TableCell>
-                      
                     </TableRow>
                   ))}
                 </TableBody>
