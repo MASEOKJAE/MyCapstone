@@ -245,6 +245,7 @@ export default function HomePage() {
   // const [submitNum, setSubmitNum] = useState(0);
   const [totalScore, setTotalScore] = useState(0);
   const [data, setData] = useState(null);
+  const [updateTokenId, setUpdateToken] = useState(0);
 
    // Token 발행을 위한 구성
   
@@ -258,6 +259,7 @@ export default function HomePage() {
       totalScore
     }).then(() => {
       alert("Successful insert");
+      window.location.reload();
     })
     .catch((error) => {
       console.log(error);
@@ -266,12 +268,13 @@ export default function HomePage() {
 
     tokenOffering(courseName, section, type, tokenName, totalScore);
   };
-
+  // 토큰 삭제
   const tokenDelete = (tokenId) => {
     console.log("token ID 잘 넘어오니 -> " + tokenId);
     axios.delete(`/a_dashboard/a_tokenmanage/${tokenId}`)
       .then(() => {
         alert("Successful delete");
+        window.location.reload();
       })
       .catch((error) => {
         console.log(error);
@@ -280,31 +283,43 @@ export default function HomePage() {
 
   // Token 정보 수정을 위한 구성
 
-  const handleClickOpenForEdit = async (courseName, tokenName, section, totalScore) => {
+  const handleClickOpenForEdit = async (courseName, tokenName, section, totalScore, tokenID) => {
     setForEdit(true);
     console.log("courseName: " + courseName);
     console.log("tokenName: " + tokenName);
     console.log("section: " + section);
     console.log("totalScore: " + totalScore);
-    // console.log("tokenId: " + tokenId);
+    console.log("tokenId: " + tokenID);
     setCourseName(courseName);
     setSection(section);
     setTokenName(tokenName);
     setTotalScore(totalScore);
+    setUpdateToken(tokenID)
   }
 
   const handleCloseForEdit = () => {
     setForEdit(false);
-    
   }
+  // 토큰 삭제
+  const handleUpdateData = () => {
+    console.log("token ID 잘 넘어오니 -> " + updateTokenId);
+    axios.post(`/a_dashboard/a_tokenmanage/update/${updateTokenId}`, {
+      courseName,
+      section,
+      type,
+      tokenName,
+      totalScore
+    }).then(() => {
+      alert("Successful update");
+      window.location.reload();
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+    setUpdateToken(0);
+    handleCloseForEdit();
 
-  const handleUpdateData = async (tokenId) => {
-    try {
-      const response = await axios.put(`/a_dashboard/a_tokenmanage/${tokenId}`, data);
-      console.log(response.data); // 수정 성공 여부 출력
-    } catch (error) {
-      console.error(error);
-    }
+    tokenOffering(courseName, section, type, tokenName, totalScore);
   };
 
   return (
@@ -434,7 +449,7 @@ export default function HomePage() {
                       <TableCell align='center'>{row.Section}</TableCell>
                       <TableCell align='center'>{row.totalScore}</TableCell>
                       <TableCell align='center'>
-                        <Button className='revision' onClick={() => handleClickOpenForEdit(row.courseName, row.tokenName, row.Section, row.totalScore)}>수정</Button>
+                        <Button className='revision' onClick={() => handleClickOpenForEdit(row.courseName, row.tokenName, row.Section, row.totalScore, row.tokenID)}>수정</Button>
                         <Dialog open={openForEdit} onClose={handleCloseForEdit}>
                           <DialogTitle>토큰 수정</DialogTitle>
                           <DialogContent>
@@ -517,6 +532,7 @@ export default function HomePage() {
                             />
                           </DialogContent>
                           <DialogActions>
+                            <Button onClick={() => handleUpdateData()}>수정</Button>
                             <Button onClick={handleCloseForEdit}>취소</Button>
                           </DialogActions>
                         </Dialog>

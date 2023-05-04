@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Helmet } from 'react-helmet-async';
 // @mui
 import { styled } from '@mui/material/styles';
@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import GoogleButton from '../login/googleLogin';
 import RadioGroup from './radio/RadioGroup';
 import Radio from './radio/Radio'
+import axios from 'axios';
 
 
 
@@ -64,13 +65,48 @@ export default function LoginPage() {
   const [isLogin, setIsLogin] = useState(false);
   const [userInfo, setUserInfo] = useState({});
   const [value, setValue] = useState("0");
+
+
   const handleOpenStart = (enter) => {
-    // console.log(enter)
-    enter == "0" ? navigate("/dashboard/home") : navigate("/a_dashboard/a_home");
+    // 학생일 경우
+    if (enter === "0") {
+      axios.get('/login/student').then((response) => {
+        const userList = response.data;
+        // DB에 담겨 있는 email 정보들
+        const emailList = userList.map((user) => user.emailStudent);
+        // 로그인 시도를 하는 email
+        const tryEmail = userInfo.email;
+        
+        // DB에 저장된 계정과 일치하는 계정이 나타날 경우
+        if (emailList.includes(tryEmail)) {
+          navigate("/dashboard/home");
+        } else {
+          alert("존재하지 않는 계정입니다!");
+          // 존재하지 않는 계정일 경우 윈도우 새로고침
+          window.location.reload();
+        }
+      });
+    // 교수님일 경우
+    } else {
+      axios.get('/login/professor').then((response) => {
+        const userList = response.data;
+        // DB에 담겨 있는 email 정보들
+        const emailList = userList.map((user) => user.emailProf);
+        // 로그인 시도를 하는 email
+        const tryEmail = userInfo.email;
+
+        // DB에 저장된 계정과 일치하는 계정이 나타날 경우
+        if (emailList.includes(tryEmail)) {
+          navigate("/a_dashboard/a_home");
+        } else {
+          alert("존재하지 않는 계정입니다!");
+          // 존재하지 않는 계정일 경우 윈도우 새로고침
+          window.location.reload();
+        }
+      });
+    }
   };
   
-
-
   return (
     <>
       <Helmet>
@@ -105,7 +141,6 @@ export default function LoginPage() {
               Don’t have an account? {''}
               <Link variant="subtitle2">Get started</Link>
             </Typography>
-
 
             {/* Google 로그인 버튼 */}      
             <article>

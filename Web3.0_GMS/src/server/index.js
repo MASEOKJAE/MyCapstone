@@ -27,7 +27,7 @@ app.get('/a_dashboard/a_home', (req, res)=>{
 
 app.get('/a_dashboard/a_studentlist', (req, res)=>{
     // console.log('/a_dashboard/a_studentlist')
-    db.query("select * from TakeStudents where profID Like '12345'", (err, data) => {
+    db.query("select * from TakeStudents", (err, data) => {
         if(!err) {
             console.log(data)
         }
@@ -63,11 +63,37 @@ app.get('/dashboard/home', (req, res)=>{
 //     })
 // })
 
+app.get('/login/student', (req, res)=>{
+    console.log('/login/student')
+    db.query("SELECT emailStudent FROM Student", (err, data) => {
+        if(!err) {
+            console.log(data)
+        }
+        else {
+            console.log(err)
+        }
+        res.send(data)
+    })
+})
+
+app.get('/login/professor', (req, res)=>{
+    console.log('/login/professor')
+    db.query("SELECT emailProf FROM Professor", (err, data) => {
+        if(!err) {
+            console.log(data)
+        }
+        else {
+            console.log(err)
+        }
+        res.send(data)
+    })
+})
+
 app.get('/a_dashboard/a_tokenmanage', (req, res)=>{
     console.log('/a_dashboard/a_tokenmanage')
     db.query("select * from TokenInfo", (err, data) => {
         if(!err) {
-            console.log(data)
+            //console.log(data)
         }
         else {
             console.log(err)
@@ -103,11 +129,33 @@ app.delete('/a_dashboard/a_tokenmanage/:id', (req, res) => {
         console.log(err);
         res.sendStatus(500);
       } else {
-        console.log(`Deleted Token ID : ${tokenId}`);
+        //console.log(`Deleted Token ID : ${tokenId}`);
         res.sendStatus(200);
       }
     });
 });
+app.post('/a_dashboard/a_tokenmanage/update/:id', (req, res)=>{
+    const tokenId = parseFloat(req.params.id);
+    const courseName = req.body.courseName;
+    const section = req.body.section;
+    const type = req.body.type;
+    const tokenName = req.body.tokenName;
+    // const submitNum = req.body.submitNum;
+    const totalScore = req.body.totalScore;
+
+    db.query("UPDATE TokenInfo SET courseName = ?, section = ?, type = ?, tokenName = ?, totalScore = ? WHERE tokenID = ?", 
+        [courseName, section, type, tokenName, totalScore, tokenId], function(err, rows, fields) {
+        if(!err) {
+            console.log("DB 수정 성공!!!");
+            res.sendStatus(200);
+        } else {
+            console.log("DB 수정 실패…")
+            console.log(err);
+            res.sendStatus(500);
+        }
+    });
+});
+
 app.listen(PORT, ()=>{
     console.log(`Server On : http://localhost:${PORT}`)
 })
