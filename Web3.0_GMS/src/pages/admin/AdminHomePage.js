@@ -99,10 +99,41 @@ export default function HomePage() {
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
 
+  const [openForCreate, setForCreate] = React.useState(false);
+
+  const [openForEdit, setForEdit] = React.useState(false);
+
+  // 강의 개설
+  const [id, setId] = useState("12345");
+  const [email, setEmail] = useState("12345@handong.edu");
+  const [courseName, setCourseName] = useState("");
+  const [section, setSection] = useState(0);
+  const [year, setYear] = useState(0);
+  const [semester, setSemester] = useState("");
+  const [day, setDay] = useState("");
+
   const handleCloseMenu = () => {
     setOpen(null);
   };
 
+  const createCourse = () => {
+    axios.post('/a_dashboard/a_homeSet', {
+      id,
+      email,
+      courseName,
+      section,
+      // year,
+      semester,
+      day
+    }).then(() => {
+      alert("새로운 강의가 개설되었습니다.");
+      window.location.reload();
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+    handleClose();
+  };
 
   const handleFilterByName = (event) => {
     setPage(0);
@@ -112,7 +143,8 @@ export default function HomePage() {
   const goSyllabus = () => {
     navigate("/dashboard/profile");
   };
-  const goStudentList = () => {
+  // 
+  const goStudentList = (course) => {
     navigate("/a_dashboard/a_studentlist");
     //student_list();
   };
@@ -156,42 +188,66 @@ const handleClose = () => {
               autoFocus
               margin="dense"
               id="class"
-              label="개설 과목명"
+              label="과목명"
               type="class"
               fullWidth
               variant="standard"
+              onChange={(e) => {
+                setCourseName(e.target.value);
+              }} 
             />
             <TextField
               autoFocus
               margin="dense"
               id="time"
-              label="개설 기간"
-              type="string time"
+              label="분반"
+              type="year"
               fullWidth
               variant="standard"
+              onChange={(e) => {
+                setSection(e.target.value);
+              }} 
+            />
+            <TextField
+              autoFocus
+              margin="dense"
+              id="time"
+              label="년도"
+              type="year"
+              fullWidth
+              variant="standard"
+              onChange={(e) => {
+                setYear(e.target.value);
+              }} 
             />
             <TextField
               autoFocus
               margin="dense"
               id="classroom"
-              label="강의실"
-              type="claclassroomss"
+              label="학기"
+              type="semester"
               fullWidth
               variant="standard"
+              onChange={(e) => {
+                setSemester(e.target.value);
+              }} 
             />
             <TextField
               autoFocus
               margin="dense"
               id="schedule"
-              label="강의 계획서"
-              type="schedule"
+              label="요일"
+              type="day"
               fullWidth
               variant="standard"
+              onChange={(e) => {
+                setDay(e.target.value);
+              }} 
             />
           </DialogContent>
           <DialogActions>
             <Button onClick={handleClose}>취소</Button>
-            <Button onClick={handleClose}>등록</Button>
+            <Button onClick={createCourse}>등록</Button>
           </DialogActions>
         </Dialog>
 
@@ -206,7 +262,7 @@ const handleClose = () => {
                   <TableRow>
                     <TableCell align='center'>과목명</TableCell>
                     <TableCell align='center'>분반</TableCell>
-                    <TableCell align='center'>강의실</TableCell>
+                    <TableCell align='center'>요일</TableCell>
                     <TableCell align='center'>강의 계획서</TableCell>
                     <TableCell align='center'>수강 학생</TableCell>
                     <TableCell align='center'>수정</TableCell>
@@ -217,12 +273,12 @@ const handleClose = () => {
                     <TableRow>
                       <TableCell align='center'>{row.courseName}</TableCell>
                       <TableCell align='center'>{row.Section}</TableCell>
-                      <TableCell align='center'>{}</TableCell>
+                      <TableCell align='center'>{row.day_of_week}</TableCell>
                       <TableCell align='center'>
                         <Button onClick={goSyllabus}>확인</Button>
                       </TableCell>
                       <TableCell align='center'>
-                        <Button onClick={goStudentList}>확인</Button>
+                        <Button onClick={goStudentList(row.courseName)}>확인</Button>
                       </TableCell>
                       <TableCell align='center'>
                         <Button onClick={goFixContent}>확인</Button>

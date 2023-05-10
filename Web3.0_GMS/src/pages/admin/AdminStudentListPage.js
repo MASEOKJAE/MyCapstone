@@ -84,6 +84,8 @@ export default function AdminStudentListPage() {
   const [page, setPage] = useState(0);
 
   const [filterName, setFilterName] = useState('');
+  // 발행된 토큰 리스트들
+  const [tokenList, setTokenList] = useState([]);
 
   const handleClickOpenAttend = () => {
     setAttendCre(true);
@@ -91,7 +93,20 @@ export default function AdminStudentListPage() {
 
   const handleClickOpenGrade = () => {
     setGradeCre(true);
+
+    // 발행 과제 리스트 구조체화
+    axios.get('/a_dashboard/a_studentlist/tokenList').then((response) => {
+      // 응답 데이터를 가지고 드롭다운에 표시할 내용을 구성합니다.
+      const lists = response.data.map(list => {
+        return { value: list, label: `${list.tokenName}` };
+      });
+      setTokenList(lists);
+    })
+    .catch(error => {
+      console.log(error);
+    });
   }
+
   useEffect(() => {
     axios.get('/a_dashboard/a_studentlist').then((response) => {
         setStudentList(response.data)
@@ -353,11 +368,11 @@ export default function AdminStudentListPage() {
                   <Box sx={{ maxWidth: 200 }}>
                   <Autocomplete
                     id="combo-box-demo"
-                    options={weekItems}
+                    options={tokenList}
                     getOptionLabel={(option) => option.label}
                     style={{ width: 300 }}
                     isOptionEqualToValue={(option, value) => option.value === value.value && option.label === value.label}
-                    renderInput={(params) => <TextField {...params} label="주차" />}
+                    renderInput={(params) => <TextField {...params} label="발행 리스트" />}
                   />
                   </Box>
                   <TextField

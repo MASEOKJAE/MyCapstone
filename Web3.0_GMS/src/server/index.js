@@ -25,9 +25,44 @@ app.get('/a_dashboard/a_home', (req, res)=>{
     })
 })
 
+app.post('/a_dashboard/a_homeSet', (req, res)=>{
+    const id = req.body.id;
+    const email = req.body.email;
+    const courseName = req.body.courseName;
+    const section = req.body.section;
+    const year = req.body.year;
+    const semester = req.body.semester;
+    const day = req.body.day;
+
+    console.log('/a_dashboard/a_homeSet')
+    db.query("INSERT INTO Teach VALUES(?, ?, ?, ?, ?, ?, ?, ?)", 
+            [id, email, courseName, section, year, semester, day, null], function(err, rows, fields) {
+        if(!err) {
+            console.log("DB저장 성공!!!");
+            res.sendStatus(200);
+        } else {
+            console.log("DB저장 실패…")
+            res.sendStatus(500);
+        }
+    });
+});
+
 app.get('/a_dashboard/a_studentlist', (req, res)=>{
     // console.log('/a_dashboard/a_studentlist')
     db.query("select * from TakeStudents", (err, data) => {
+        if(!err) {
+            console.log(data)
+        }
+        else {
+            console.log(err)
+        }
+        res.send(data)
+    })
+})
+
+app.get('/a_dashboard/a_studentlist/tokenList', (req, res)=>{
+    // console.log('/a_dashboard/a_studentlist/tokenList')
+    db.query("SELECT * FROM TokenInfo", (err, data) => {
         if(!err) {
             console.log(data)
         }
@@ -50,18 +85,6 @@ app.get('/dashboard/home', (req, res)=>{
         res.send(data)
     })
 })
-// app.get('/a_dashboard/a_tokenmanage',(req, res)=>{
-//     console.log('/a_dashboard/a_tokenmanage')
-//     db.query("select * from TokenInfo",(err,data) => {
-//         if(!err){
-//             console.log(data)
-//         }
-//         else {
-//             console.log(err)
-//         }
-//         res.send(data)
-//     })
-// })
 
 app.get('/login/student', (req, res)=>{
     console.log('/login/student')
