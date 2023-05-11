@@ -199,7 +199,6 @@ export default function HomePage() {
     navigate("/dashboard/ranking");
   };
 
-  
 
   const handleClose = () => {
     setOpen(false);
@@ -240,16 +239,21 @@ export default function HomePage() {
 
   const [courseName, setCourseName] = useState("");
   const [section, setSection] = useState(0);
-  const [type, setType] = useState(0);
+  const [type, setType] = useState("");
   const [tokenName, setTokenName] = useState("");
   // const [submitNum, setSubmitNum] = useState(0);
   const [totalScore, setTotalScore] = useState(0);
   const [data, setData] = useState(null);
   const [updateTokenId, setUpdateToken] = useState(0);
 
+  // const plusTokenID = () => {
+  //   setUpdateToken()
+  // }
+
    // Token 발행을 위한 구성
   
   const submitToken = () => {
+    console.log("잘 나오느냐... -> " + type);
     axios.post('/a_dashboard/a_tokenmanage', {
       courseName,
       section,
@@ -265,10 +269,13 @@ export default function HomePage() {
       console.log(error);
     });
     handleCloseForCreate();
+    
+    // 임시 TokenID 증가
+    // plusTokenID();
 
     tokenOffering(courseName, section, type, tokenName, totalScore);
   };
-  // 토큰 삭제
+
   const tokenDelete = (tokenId) => {
     console.log("token ID 잘 넘어오니 -> " + tokenId);
     axios.delete(`/a_dashboard/a_tokenmanage/${tokenId}`)
@@ -283,13 +290,15 @@ export default function HomePage() {
 
   // Token 정보 수정을 위한 구성
 
-  const handleClickOpenForEdit = async (courseName, tokenName, section, totalScore, tokenID) => {
+  const handleClickOpenForEdit = async (type, courseName, tokenName, section, totalScore, tokenID) => {
     setForEdit(true);
+    console.log("type: " + type);
     console.log("courseName: " + courseName);
     console.log("tokenName: " + tokenName);
     console.log("section: " + section);
     console.log("totalScore: " + totalScore);
     console.log("tokenId: " + tokenID);
+    setType(type);
     setCourseName(courseName);
     setSection(section);
     setTokenName(tokenName);
@@ -300,7 +309,7 @@ export default function HomePage() {
   const handleCloseForEdit = () => {
     setForEdit(false);
   }
-  // 토큰 삭제
+
   const handleUpdateData = () => {
     console.log("token ID 잘 넘어오니 -> " + updateTokenId);
     axios.post(`/a_dashboard/a_tokenmanage/update/${updateTokenId}`, {
@@ -345,7 +354,9 @@ export default function HomePage() {
                   row
                   aria-labelledby="demo-form-control-label-placement"
                   name="position"
-                  defaultValue="homework"
+                  // defaultValue="homework"
+                  // value={type} // 선택된 값
+                  onChange={(e) => setType(e.target.value)} // 선택 값 변경 시 setType() 호출
                 >
                   <FormControlLabel
                     value="homework"
@@ -435,7 +446,7 @@ export default function HomePage() {
                   <TableRow>
                     <TableCell align='center'>수업명</TableCell>
                     <TableCell align='center'>토큰 이름</TableCell>
-                    <TableCell align='center'>제출 인원</TableCell>
+                    <TableCell align='center'>분반</TableCell>
                     <TableCell align='center'>총 배점</TableCell>
                     <TableCell align='center'>세부 내용</TableCell>
                     <TableCell align='center'>삭제</TableCell>
@@ -446,10 +457,10 @@ export default function HomePage() {
                     <TableRow key={row.tokenID}>
                       <TableCell align='center'>{row.courseName}</TableCell>
                       <TableCell align='center'>{row.tokenName}</TableCell>
-                      <TableCell align='center'>{row.Section}</TableCell>
+                      <TableCell align='center'>{row.section}</TableCell>
                       <TableCell align='center'>{row.totalScore}</TableCell>
                       <TableCell align='center'>
-                        <Button className='revision' onClick={() => handleClickOpenForEdit(row.courseName, row.tokenName, row.Section, row.totalScore, row.tokenID)}>수정</Button>
+                        <Button className='revision' onClick={() => handleClickOpenForEdit(row.type, row.courseName, row.tokenName, row.section, row.totalScore, row.tokenID)}>수정</Button>
                         <Dialog open={openForEdit} onClose={handleCloseForEdit}>
                           <DialogTitle>토큰 수정</DialogTitle>
                           <DialogContent>
@@ -457,7 +468,8 @@ export default function HomePage() {
                               row
                               aria-labelledby="demo-form-control-label-placement"
                               name="position"
-                              defaultValue="homework"
+                              // defaultValue="homework"
+                              onChange={(e) => setType(e.target.value)} // 선택 값 변경 시 setType() 호출
                             >
                               <FormControlLabel
                                 value="homework"

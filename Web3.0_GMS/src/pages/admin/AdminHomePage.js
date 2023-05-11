@@ -141,16 +141,15 @@ export default function HomePage() {
   };
 
   const goSyllabus = () => {
-    navigate("/dashboard/profile");
+    // navigate("/dashboard/profile");
   };
   // 
-  const goStudentList = (course) => {
+  const goStudentList = () => {
     navigate("/a_dashboard/a_studentlist");
     //student_list();
   };
   const goFixContent = () => {
-    navigate("/dashboard/ranking");
-    
+    // navigate("/dashboard/ranking");
   };
 
 
@@ -278,7 +277,7 @@ const handleClose = () => {
                         <Button onClick={goSyllabus}>확인</Button>
                       </TableCell>
                       <TableCell align='center'>
-                        <Button onClick={goStudentList(row.courseName)}>확인</Button>
+                        <Button onClick={goStudentList}>확인</Button>
                       </TableCell>
                       <TableCell align='center'>
                         <Button onClick={goFixContent}>확인</Button>

@@ -69,13 +69,7 @@ export default function AdminStudentListPage() {
   
   const [name, stname] = useState('');
   
-  const [courseName, setCourseName] = useState("");
-  
   const [section, setSection] = useState(0);
-  
-  const [tokenName, setTokenName] = useState("");
-  
-  const [totalScore, setTotalScore] = useState(0);
 
   const [open, setOpen] = useState(null);
 
@@ -84,6 +78,13 @@ export default function AdminStudentListPage() {
   const [page, setPage] = useState(0);
 
   const [filterName, setFilterName] = useState('');
+
+  // 토큰 정보 담는 변수
+  const [courseName, setCourseName] = useState("");
+  const [tokenName, setTokenName] = useState("");
+  const [totalScore, setTotalScore] = useState(0);
+  const [type, setType] = useState("");
+
   // 발행된 토큰 리스트들
   const [tokenList, setTokenList] = useState([]);
 
@@ -138,22 +139,43 @@ export default function AdminStudentListPage() {
   const handleChange = (event) => {
     setAge(event.target.value);
   };
-  // const submitToken = () => {
-  //   axios.post('/a_dashboard/a_studentlist', {
-  //     courseName,
-  //     section,
-  //     type,
-  //     tokenName,
-  //     // submitNum,
-  //     totalScore
-  //   }).then(() => {
-  //     alert("Successful insert");
-  //   })
-  //   .catch((error) => {
-  //     console.log(error);
-  //   });
-  //   handleCloseForCreate();
-  // };
+
+  const submitToken = async (sid) => {
+    try {
+      console.log('sid: ',sid);
+      alert("Successful insert");
+      //window.location.reload();
+      // setCourseName(courseName);
+      //setSection(section);
+      // setTokenName(tokenName);
+      // setTotalScore(totalScore);
+      //setUpdateToken(tokenID);
+      //getTokenURI(1);
+
+      // axios.post(`/a_dashboard/a_tokenmanage/submit/${updateTokenId}`, {
+      //   courseName,
+      //   section,
+      //   type,
+      //   tokenName,
+      //   totalScore
+      // }).then(() => {
+      //   alert("Successful submit");
+      //   //window.location.reload();
+      // })
+      // .catch((error) => {
+      //   console.log(error);
+      // });
+
+      console.log('ipfs_hash에 담길 값들 : ',courseName, type, tokenName, totalScore, score, contents);
+      //const ipfs_hash = await gradeTokenOffering(courseName, 2, type, tokenName, totalScore, score, contents);
+      //console.log("ipfs_hash in studentlist file: " + ipfs_hash);
+      closeGrade();
+        //console.log('defaultAccount: ' + defaultAccount);
+      //safeMinting(ipfs_hash, defaultAccount);
+    } catch (error) {
+      console.log(error);
+    } 
+  };
 
     // 출석 토큰 정보 저장 변수
     const weekItems = [
@@ -403,7 +425,7 @@ export default function AdminStudentListPage() {
               </DialogContent>
               <DialogActions>
                 <Button onClick={closeGrade}>취소</Button>
-                <Button onClick={handleClose}>생성</Button>
+                <Button onClick={() => submitToken(row.studentID)}>생성</Button>
               </DialogActions>
             </Dialog>
                       </TableCell>

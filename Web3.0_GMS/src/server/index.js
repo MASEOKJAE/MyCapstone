@@ -12,13 +12,71 @@ app.get('/', (req, res)=>{
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-app.get('/a_dashboard/a_home', (req, res)=>{
-    // console.log('/a_dashboard/a_home')
-    db.query("select * from Teach", (err, data) => {
+// 로그인 페이지 관련
+
+app.get('/login/student', (req, res)=>{
+    console.log('/login/student')
+    db.query("SELECT emailStudent FROM Student", (err, data) => {
         if(!err) {
             console.log(data)
         }
         else {
+            console.log(err)
+        }
+        res.send(data)
+    })
+})
+
+app.get('/login/professor', (req, res)=>{
+    console.log('/login/professor')
+    db.query("SELECT emailProf FROM Professor", (err, data) => {
+        if(!err) {
+            console.log(data)
+        }
+        else {
+            console.log(err)
+        }
+        res.send(data)
+    })
+})
+
+// 사용자 페이지 관련
+
+app.get('/dashboard/home', (req, res)=>{
+    // console.log('/dashboard/home')
+    db.query("SELECT * from Course", (err, data) => {
+        if(!err) {
+            console.log(data)
+        }
+        else {
+            console.log(err)
+        }
+        res.send(data)
+    })
+})
+
+// 관리자 페이지 관련
+
+app.get('/a_dashboard/a_home', (req, res)=>{
+    // console.log('/a_dashboard/a_home')
+    db.query("SELECT * FROM Teach", (err, data) => {
+        if(!err) {
+            console.log(data)
+        }
+        else {
+            console.log(err)
+        }
+        res.send(data)
+    })
+})
+
+app.get('/a_dashboard/a_tokenmanage/professor', (req, res) => {
+    //console.log('/a_dashboard/a_tokenmanage/professor')
+    db.query("SELECT walletAddress FROM Professor", (err, data) => {
+        if(!err){
+            //console.log(data);
+        }
+        else{
             console.log(err)
         }
         res.send(data)
@@ -49,7 +107,7 @@ app.post('/a_dashboard/a_homeSet', (req, res)=>{
 
 app.get('/a_dashboard/a_studentlist', (req, res)=>{
     // console.log('/a_dashboard/a_studentlist')
-    db.query("select * from TakeStudents", (err, data) => {
+    db.query("SELECT * FROM TakeStudents", (err, data) => {
         if(!err) {
             console.log(data)
         }
@@ -73,48 +131,9 @@ app.get('/a_dashboard/a_studentlist/tokenList', (req, res)=>{
     })
 })
 
-app.get('/dashboard/home', (req, res)=>{
-    // console.log('/dashboard/home')
-    db.query("select * from Course", (err, data) => {
-        if(!err) {
-            console.log(data)
-        }
-        else {
-            console.log(err)
-        }
-        res.send(data)
-    })
-})
-
-app.get('/login/student', (req, res)=>{
-    console.log('/login/student')
-    db.query("SELECT emailStudent FROM Student", (err, data) => {
-        if(!err) {
-            console.log(data)
-        }
-        else {
-            console.log(err)
-        }
-        res.send(data)
-    })
-})
-
-app.get('/login/professor', (req, res)=>{
-    console.log('/login/professor')
-    db.query("SELECT emailProf FROM Professor", (err, data) => {
-        if(!err) {
-            console.log(data)
-        }
-        else {
-            console.log(err)
-        }
-        res.send(data)
-    })
-})
-
 app.get('/a_dashboard/a_tokenmanage', (req, res)=>{
     console.log('/a_dashboard/a_tokenmanage')
-    db.query("select * from TokenInfo", (err, data) => {
+    db.query("SELECT * FROM TokenInfo", (err, data) => {
         if(!err) {
             //console.log(data)
         }
@@ -125,6 +144,7 @@ app.get('/a_dashboard/a_tokenmanage', (req, res)=>{
     })
 })
 app.post('/a_dashboard/a_tokenmanage', (req, res)=>{
+    // const tokenID = req.body.updateTokenId;
     const courseName = req.body.courseName;
     const section = req.body.section;
     const type = req.body.type;
@@ -178,6 +198,7 @@ app.post('/a_dashboard/a_tokenmanage/update/:id', (req, res)=>{
         }
     });
 });
+
 
 app.listen(PORT, ()=>{
     console.log(`Server On : http://localhost:${PORT}`)
