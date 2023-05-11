@@ -79,11 +79,25 @@ export default function AdminStudentListPage() {
 
   const [filterName, setFilterName] = useState('');
 
-  // 토큰 정보 담는 변수
+  // 성적 정보 담는 변수
+  const [selectedToken, setSelectedToken] = useState(null);
+
   const [courseName, setCourseName] = useState("");
   const [tokenName, setTokenName] = useState("");
   const [totalScore, setTotalScore] = useState(0);
   const [type, setType] = useState("");
+  const [score, setScore] = useState(0);
+  const [contents, setContents] = useState("");
+  const [stdAddress, setStdAddress] = useState("");
+
+  // 선택한 토큰 리스트의 데이터 추출 및 저장
+  const handleTokenChange = (event, value) => {
+    setCourseName(value.value.courseName);
+    setTokenName(value.value.tokenName);
+    setTotalScore(value.value.totalScore);
+    setType(value.value.type);
+    // console.log("잘 가져오는가? -> " + value.value.type);
+  }
 
   // 발행된 토큰 리스트들
   const [tokenList, setTokenList] = useState([]);
@@ -92,9 +106,9 @@ export default function AdminStudentListPage() {
     setAttendCre(true);
   }
 
-  const handleClickOpenGrade = () => {
+  const handleClickOpenGrade = (address) => {
     setGradeCre(true);
-
+    setStdAddress(address);
     // 발행 과제 리스트 구조체화
     axios.get('/a_dashboard/a_studentlist/tokenList').then((response) => {
       // 응답 데이터를 가지고 드롭다운에 표시할 내용을 구성합니다.
@@ -107,6 +121,8 @@ export default function AdminStudentListPage() {
       console.log(error);
     });
   }
+
+  // console.log("확인 확인 확인 !!! -> " + tokenList.value);
 
   useEffect(() => {
     axios.get('/a_dashboard/a_studentlist').then((response) => {
@@ -140,38 +156,24 @@ export default function AdminStudentListPage() {
     setAge(event.target.value);
   };
 
-  const submitToken = async (sid) => {
+  // 성적 입력 후 처리
+  const submitToken = async () => {
     try {
-      console.log('sid: ',sid);
-      alert("Successful insert");
-      //window.location.reload();
-      // setCourseName(courseName);
-      //setSection(section);
-      // setTokenName(tokenName);
-      // setTotalScore(totalScore);
-      //setUpdateToken(tokenID);
-      //getTokenURI(1);
-
-      // axios.post(`/a_dashboard/a_tokenmanage/submit/${updateTokenId}`, {
-      //   courseName,
-      //   section,
-      //   type,
-      //   tokenName,
-      //   totalScore
-      // }).then(() => {
-      //   alert("Successful submit");
-      //   //window.location.reload();
-      // })
-      // .catch((error) => {
-      //   console.log(error);
-      // });
-
-      console.log('ipfs_hash에 담길 값들 : ',courseName, type, tokenName, totalScore, score, contents);
+      console.log('address: ',stdAddress);
+      console.log('courseName: ',courseName);
+      console.log('type: ',type);
+      console.log('tokenName: ',tokenName);
+      console.log('totalScore: ',totalScore);
+      console.log('score: ',score);
+      console.log('contents: ',contents);
+    
       //const ipfs_hash = await gradeTokenOffering(courseName, 2, type, tokenName, totalScore, score, contents);
       //console.log("ipfs_hash in studentlist file: " + ipfs_hash);
       closeGrade();
         //console.log('defaultAccount: ' + defaultAccount);
       //safeMinting(ipfs_hash, defaultAccount);
+      alert("Successful insert");
+      window.location.reload();
     } catch (error) {
       console.log(error);
     } 
@@ -222,15 +224,6 @@ export default function AdminStudentListPage() {
       setGrade2(true);
     };
 
-
-   // 성적 토큰 정보 저장 변수
-
-   const [score, setScore] = useState(0);
-   const [contents, setContents] = useState("");
-   // const [submitNum, setSubmitNum] = useState(0);
-  //  console.log("score -> " + score);
-  //  console.log("contents -> " + contents);
-
   return (
     <>
       <Helmet >
@@ -273,39 +266,12 @@ export default function AdminStudentListPage() {
                         
                       </TableCell>
                       <TableCell align='center'>
-                <Button onClick= {handleClickOpenGrade}>입력</Button>
+                <Button onClick= {()=> handleClickOpenGrade(row.studentAddress)}>입력</Button>
 
                   <Dialog open={openAttendCre} onClose={closeAttend}>
                     <DialogTitle>출석토큰 입력</DialogTitle>
                     <DialogContent>
                       <Box sx={{ minWidth: 300 }}>
-                        {/* <FormControl fullWidth>
-                          <InputLabel id="demo-simple-select-label">주차</InputLabel>
-                          <Select
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={age}
-                            label="토큰선택"
-                            onChange={handleChange}
-                          >
-                            <MenuItem value={10}>1주차</MenuItem>
-                            <MenuItem value={20}>2주차</MenuItem>
-                            <MenuItem value={30}>3주차</MenuItem>
-                            <MenuItem value={40}>4주차</MenuItem>
-                            <MenuItem value={50}>5주차</MenuItem>
-                            <MenuItem value={60}>6주차</MenuItem>
-                            <MenuItem value={70}>7주차</MenuItem>
-                            <MenuItem value={80}>8주차</MenuItem>
-                            <MenuItem value={90}>9주차</MenuItem>
-                            <MenuItem value={100}>10주차</MenuItem>
-                            <MenuItem value={110}>11주차</MenuItem>
-                            <MenuItem value={120}>12주차</MenuItem>
-                            <MenuItem value={130}>13주차</MenuItem>
-                            <MenuItem value={140}>14주차</MenuItem>
-                            <MenuItem value={150}>15주차</MenuItem>
-                            <MenuItem value={160}>16주차</MenuItem>
-                          </Select>
-                        </FormControl> */}
                         <Autocomplete
                           id="combo-box-demo"
                           options={weekItems}
@@ -395,6 +361,7 @@ export default function AdminStudentListPage() {
                     style={{ width: 300 }}
                     isOptionEqualToValue={(option, value) => option.value === value.value && option.label === value.label}
                     renderInput={(params) => <TextField {...params} label="발행 리스트" />}
+                    onChange={handleTokenChange}
                   />
                   </Box>
                   <TextField
@@ -425,7 +392,7 @@ export default function AdminStudentListPage() {
               </DialogContent>
               <DialogActions>
                 <Button onClick={closeGrade}>취소</Button>
-                <Button onClick={() => submitToken(row.studentID)}>생성</Button>
+                <Button onClick={() => submitToken()}>생성</Button>
               </DialogActions>
             </Dialog>
                       </TableCell>
