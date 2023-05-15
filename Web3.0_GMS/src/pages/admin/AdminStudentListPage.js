@@ -7,8 +7,9 @@ import * as React from 'react';
 import axios from 'axios';
 import './Admin.css';
 import { Autocomplete } from '@mui/material';
-
-
+// import { gradeTokenOffering } from '../../backend/score_data';
+// import { safeMinting } from '../../backend/safeMint';
+// import { attendTokenOffering } from '../../backend/attend_data';
 // @mui
 import {
   Card,
@@ -91,7 +92,7 @@ export default function AdminStudentListPage() {
   const [stdAddress, setStdAddress] = useState("");
 
   // 선택한 토큰 리스트의 데이터 추출 및 저장
-  const handleTokenChange = (event, value) => {
+  const handleGradeTokenChange = (event, value) => {
     setCourseName(value.value.courseName);
     setTokenName(value.value.tokenName);
     setTotalScore(value.value.totalScore);
@@ -100,15 +101,19 @@ export default function AdminStudentListPage() {
   }
 
   // 발행된 토큰 리스트들
+  const [selectedValue, setSelectedValue] = useState('homework');
   const [tokenList, setTokenList] = useState([]);
-
-  const handleClickOpenAttend = () => {
+  const [filteredTokenList, setFilteredTokenList] = useState([]);
+  
+  const handleClickOpenAttend = (address) => {
     setAttendCre(true);
+    setStdAddress(address);
   }
 
   const handleClickOpenGrade = (address) => {
     setGradeCre(true);
     setStdAddress(address);
+    setSelectedValue('homework');
     // 발행 과제 리스트 구조체화
     axios.get('/a_dashboard/a_studentlist/tokenList').then((response) => {
       // 응답 데이터를 가지고 드롭다운에 표시할 내용을 구성합니다.
@@ -123,6 +128,19 @@ export default function AdminStudentListPage() {
   }
 
   // console.log("확인 확인 확인 !!! -> " + tokenList.value);
+
+  useEffect(() => {
+    // 라디오 버튼 값이 변경될 때마다 해당 값에 맞는 배열 내용을 필터링하여 tokenList에 저장
+    const filteredList = tokenList.filter(item => item.value.type === selectedValue);
+    setFilteredTokenList(filteredList);
+  }, [selectedValue]);
+
+  const handleRadioChange = (event) => {
+    setSelectedValue(event.target.value);
+  };
+
+
+
 
   useEffect(() => {
     axios.get('/a_dashboard/a_studentlist').then((response) => {
@@ -157,7 +175,7 @@ export default function AdminStudentListPage() {
   };
 
   // 성적 입력 후 처리
-  const submitToken = async () => {
+  const submitGradeToken = async () => {
     try {
       console.log('address: ',stdAddress);
       console.log('courseName: ',courseName);
@@ -167,13 +185,13 @@ export default function AdminStudentListPage() {
       console.log('score: ',score);
       console.log('contents: ',contents);
     
-      //const ipfs_hash = await gradeTokenOffering(courseName, 2, type, tokenName, totalScore, score, contents);
+      // const ipfs_hash = await gradeTokenOffering(courseName, section, type, tokenName, totalScore, score, contents);
       //console.log("ipfs_hash in studentlist file: " + ipfs_hash);
-      closeGrade();
+      closeGrade();;
         //console.log('defaultAccount: ' + defaultAccount);
-      //safeMinting(ipfs_hash, defaultAccount);
+      // safeMinting(ipfs_hash, stdAddress);
       alert("Successful insert");
-      window.location.reload();
+      // window.location.reload();
     } catch (error) {
       console.log(error);
     } 
@@ -181,48 +199,83 @@ export default function AdminStudentListPage() {
 
     // 출석 토큰 정보 저장 변수
     const weekItems = [
-      { value: 10, label: '1주차' },
-      { value: 20, label: '2주차' },
-      { value: 30, label: '3주차' },
-      { value: 40, label: '4주차' },
-      { value: 50, label: '5주차' },
-      { value: 60, label: '6주차' },
-      { value: 70, label: '7주차' },
-      { value: 80, label: '8주차' },
-      { value: 90, label: '9주차' },
-      { value: 100, label: '10주차' },
-      { value: 110, label: '11주차' },
-      { value: 120, label: '12주차' },
-      { value: 130, label: '13주차' },
-      { value: 140, label: '14주차' },
-      { value: 150, label: '15주차' },
-      { value: 160, label: '16주차' },
+      { value: '1주차', label: '1주차' },
+      { value: '2주차', label: '2주차' },
+      { value: '3주차', label: '3주차' },
+      { value: '4주차', label: '4주차' },
+      { value: '5주차', label: '5주차' },
+      { value: '6주차', label: '6주차' },
+      { value: '7주차', label: '7주차' },
+      { value: '8주차', label: '8주차' },
+      { value: '9주차', label: '9주차' },
+      { value: '10주차', label: '10주차' },
+      { value: '11주차', label: '11주차' },
+      { value: '12주차', label: '12주차' },
+      { value: '13주차', label: '13주차' },
+      { value: '14주차', label: '14주차' },
+      { value: '15주차', label: '15주차' },
+      { value: '16주차', label: '16주차' }
     ];
-    
-    const [attend1, setAttend1] = useState(false);
-    const [attend2, setAttend2] = useState(false);
-    const [grade1, setGrade1] = useState(false);
-    const [grade2, setGrade2] = useState(false);
+
+    // 1차시 2차시 출석 정보 담는 변수
+    const [attend1, setAttend1] = useState("결석");
+    const [attend2, setAttend2] = useState("결석");
+    const [weekInfo, setWeekInfo] = useState("");
+
+    const [checkOne1, setCheckOne1] = useState(false);
+    const [checkOne2, setCheckOne2] = useState(false);
+    const [checkTwo1, setCheckTwo1] = useState(false);
+    const [checkTwo2, setCheckTwo2] = useState(false);
+
+    // 선택한 토큰 리스트의 데이터 추출 및 저장
+  const handleAttendTokenChange = (event, value) => {
+    setWeekInfo(value.value);
+    // console.log("잘 가져오는가? -> " + value.value);
+  }
 
     const handleAttend1Change = () => {
-      setAttend1(true);
-      setAttend2(false);
+      setCheckOne1(true);
+      setCheckOne2(false);
+      setAttend1("출석");
     };
 
     const handleAttend2Change = () => {
-      setAttend1(false);
-      setAttend2(true);
+      setCheckOne1(false);
+      setCheckOne2(true);
+      setAttend1("지각");
     };
 
     const handleGrade1Change = () => {
-      setGrade1(true);
-      setGrade2(false);
+      setCheckTwo1(true);
+      setCheckTwo2(false);
+      setAttend2("출석")
     };
 
     const handleGrade2Change = () => {
-      setGrade1(false);
-      setGrade2(true);
+      setCheckTwo1(false);
+      setCheckTwo2(true);
+      setAttend2("지각");
     };
+
+     // 출석 입력 후 처리
+  const submitAttendToken = async () => {
+    try {
+      console.log('address: ',stdAddress);
+      console.log('week: ',weekInfo);
+      console.log('1차시: ',attend1);
+      console.log('2차시: ',attend2);
+    
+      // const ipfs_hash = await attendTokenOffering(weekInfo, attend1, attend2);
+      //console.log("ipfs_hash in studentlist file: " + ipfs_hash);
+      closeAttend();
+        //console.log('defaultAccount: ' + defaultAccount);
+      // safeMinting(ipfs_hash, stdAddress);
+      alert("Successful insert");
+      // window.location.reload();
+    } catch (error) {
+      console.log(error);
+    } 
+  };
 
   return (
     <>
@@ -262,7 +315,7 @@ export default function AdminStudentListPage() {
                         <Button>확인</Button>
                       </TableCell>
                       <TableCell align='center'>
-                      <Button onClick= {handleClickOpenAttend}>입력</Button>
+                      <Button onClick= {()=> handleClickOpenAttend(row.studentAddress)}>입력</Button>
                         
                       </TableCell>
                       <TableCell align='center'>
@@ -279,6 +332,7 @@ export default function AdminStudentListPage() {
                           style={{ width: 300 }}
                           isOptionEqualToValue={(option, value) => option.value === value.value && option.label === value.label}
                           renderInput={(params) => <TextField {...params} label="주차" />}
+                          onChange={handleAttendTokenChange}
                         />
 
                         <br />
@@ -295,19 +349,19 @@ export default function AdminStudentListPage() {
                               <TableRow>
                                 <TableCell align="center">1차시</TableCell>
                                 <TableCell align="center">
-                                  <Checkbox className='attend1' checked={attend1} onChange={handleAttend1Change} />
+                                  <Checkbox className='attend1' checked={checkOne1} onChange={handleAttend1Change} />
                                 </TableCell>
                                 <TableCell align="center">
-                                  <Checkbox className='attend2' checked={attend2} onChange={handleAttend2Change} />
+                                  <Checkbox className='attend2' checked={checkOne2} onChange={handleAttend2Change} />
                                 </TableCell>
                               </TableRow>
                               <TableRow>
                                 <TableCell align="center">2차시</TableCell>
                                 <TableCell align="center">
-                                  <Checkbox className='grade1' checked={grade1} onChange={handleGrade1Change} />
+                                  <Checkbox className='grade1' checked={checkTwo1} onChange={handleGrade1Change} />
                                 </TableCell>
                                 <TableCell align="center">
-                                  <Checkbox className='grade2' checked={grade2} onChange={handleGrade2Change} />
+                                  <Checkbox className='grade2' checked={checkTwo2} onChange={handleGrade2Change} />
                                 </TableCell>
                               </TableRow>
                             </TableBody>
@@ -318,7 +372,7 @@ export default function AdminStudentListPage() {
                     </DialogContent>
                     <DialogActions>
                       <Button onClick={closeAttend}>취소</Button>
-                      <Button onClick={handleClose}>생성</Button>
+                      <Button onClick={() => submitAttendToken()}>생성</Button>
                     </DialogActions>
                   </Dialog>
 
@@ -331,7 +385,8 @@ export default function AdminStudentListPage() {
                   row
                   aria-labelledby="demo-form-control-label-placement"
                   name="position"
-                  defaultValue="homework"
+                  defaultValue={selectedValue}
+                  onChange={handleRadioChange}
                 >
                   <FormControlLabel
                     value="homework"
@@ -356,12 +411,12 @@ export default function AdminStudentListPage() {
                   <Box sx={{ maxWidth: 200 }}>
                   <Autocomplete
                     id="combo-box-demo"
-                    options={tokenList}
+                    options={filteredTokenList}
                     getOptionLabel={(option) => option.label}
                     style={{ width: 300 }}
                     isOptionEqualToValue={(option, value) => option.value === value.value && option.label === value.label}
                     renderInput={(params) => <TextField {...params} label="발행 리스트" />}
-                    onChange={handleTokenChange}
+                    onChange={handleGradeTokenChange}
                   />
                   </Box>
                   <TextField
@@ -392,7 +447,7 @@ export default function AdminStudentListPage() {
               </DialogContent>
               <DialogActions>
                 <Button onClick={closeGrade}>취소</Button>
-                <Button onClick={() => submitToken()}>생성</Button>
+                <Button onClick={() => submitGradeToken()}>생성</Button>
               </DialogActions>
             </Dialog>
                       </TableCell>

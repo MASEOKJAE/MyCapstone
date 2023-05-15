@@ -44,7 +44,7 @@ app.get('/login/professor', (req, res)=>{
 
 app.get('/dashboard/home', (req, res)=>{
     // console.log('/dashboard/home')
-    db.query("SELECT * from Course", (err, data) => {
+    db.query("SELECT * FROM Course", (err, data) => {
         if(!err) {
             console.log(data)
         }
