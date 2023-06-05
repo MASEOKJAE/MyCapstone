@@ -15,7 +15,7 @@ import GoogleButton from '../login/googleLogin';
 import RadioGroup from './radio/RadioGroup';
 import Radio from './radio/Radio'
 import axios from 'axios';
-
+import User from '../shareInfo/userInfo'
 
 
 // ----------------------------------------------------------------------
@@ -64,7 +64,7 @@ export default function LoginPage() {
   // 구글 로그인 관련 변수 선언
   const [isLogin, setIsLogin] = useState(false);
   const [userInfo, setUserInfo] = useState({});
-  const [value, setValue] = useState("0");
+  const [value, setValue] = useState("0"); 
 
 
   const handleOpenStart = (enter) => {
@@ -79,6 +79,17 @@ export default function LoginPage() {
         
         // DB에 저장된 계정과 일치하는 계정이 나타날 경우
         if (emailList.includes(tryEmail)) {
+          const matchingUser = userList.find((user) => user.emailStudent === tryEmail);
+          const name = matchingUser.name;
+          const email =  matchingUser.emailStudent;
+          const id =  matchingUser.studentID;
+          const department =  matchingUser.department;
+          const account =  matchingUser.walletAddress;
+
+          const user = User.getInstance();
+          user.setUserInfo(name, email, id, department, account);
+          console.log("학생 넘김 확인!! -> " + name + "  " + email);
+
           navigate("/dashboard/home");
         } else {
           alert("존재하지 않는 계정입니다!");
@@ -97,6 +108,17 @@ export default function LoginPage() {
 
         // DB에 저장된 계정과 일치하는 계정이 나타날 경우
         if (emailList.includes(tryEmail)) {
+          const matchingUser = userList.find((user) => user.emailProf === tryEmail);
+          const name = matchingUser.name;
+          const email =  matchingUser.emailProf;
+          const id =  '';
+          const department =  matchingUser.department;
+          const account =  matchingUser.walletAddress;
+
+          const user = User.getInstance();
+          user.setUserInfo(name, email, id, department, account);
+          console.log("교수 넘김 확인!! -> " + name + "  " + email);
+
           navigate("/a_dashboard/a_home");
         } else {
           alert("존재하지 않는 계정입니다!");

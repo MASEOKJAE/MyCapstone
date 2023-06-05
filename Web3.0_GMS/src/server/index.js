@@ -16,7 +16,7 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 app.get('/login/student', (req, res)=>{
     console.log('/login/student')
-    db.query("SELECT emailStudent FROM Student", (err, data) => {
+    db.query("SELECT * FROM Student", (err, data) => {
         if(!err) {
             console.log(data)
         }
@@ -27,9 +27,27 @@ app.get('/login/student', (req, res)=>{
     })
 })
 
+app.post('/login/student/post', (req, res)=>{
+    const name = req.body.name;
+    const email = req.body.email;
+    const department = req.body.department;
+    const address = req.body.address;
+
+    db.query("INSERT INTO TempStudent VALUES(?, ?, ?, ?)",
+            [name, email, department, address], function(err, rows, fields) {
+        if(!err) {
+            console.log("DB저장 성공!!!");
+            res.sendStatus(200);
+        } else {
+            console.log("DB저장 실패…");
+            res.sendStatus(500);
+        }
+    });
+});
+
 app.get('/login/professor', (req, res)=>{
     console.log('/login/professor')
-    db.query("SELECT emailProf FROM Professor", (err, data) => {
+    db.query("SELECT * FROM Professor", (err, data) => {
         if(!err) {
             console.log(data)
         }
@@ -39,6 +57,24 @@ app.get('/login/professor', (req, res)=>{
         res.send(data)
     })
 })
+
+app.post('/login/professor/post', (req, res)=>{
+    const name = req.body.name;
+    const email = req.body.email;
+    const department = req.body.department;
+    const address = req.body.address;
+
+    db.query("INSERT INTO TempProfessor VALUES(?, ?, ?, ?)",
+            [name, email, department, address], function(err, rows, fields) {
+        if(!err) {
+            console.log("DB저장 성공!!!");
+            res.sendStatus(200);
+        } else {
+            console.log("DB저장 실패…");
+            res.sendStatus(500);
+        }
+    });
+});
 
 // 사용자 페이지 관련
 
@@ -82,6 +118,28 @@ app.get('/a_dashboard/a_tokenmanage/professor', (req, res) => {
         res.send(data)
     })
 })
+
+app.post('/a_dashboard/a_tokenmanage/submit/:id', (req, res)=>{
+    const tokenId = parseFloat(req.params.id);
+    const courseName = req.body.courseName;
+    const section = req.body.section;
+    const type = req.body.type;
+    const tokenName = req.body.tokenName;
+    // const submitNum = req.body.submitNum;
+    const totalScore = req.body.totalScore;
+
+    db.query("UPDATE TokenInfo SET courseName = ?, section = ?, type = ?, tokenName = ?, totalScore = ? WHERE tokenID = ?",
+        [courseName, section, type, tokenName, totalScore, tokenId], function(err, rows, fields) {
+        if(!err) {
+            console.log("DB 가져오기 성공!!!");
+            res.sendStatus(200);
+        } else {
+            console.log("DB 가져오기 실패…")
+            console.log(err);
+            res.sendStatus(500);
+        }
+    });
+});
 
 app.post('/a_dashboard/a_homeSet', (req, res)=>{
     const id = req.body.id;
@@ -144,7 +202,6 @@ app.get('/a_dashboard/a_tokenmanage', (req, res)=>{
     })
 })
 app.post('/a_dashboard/a_tokenmanage', (req, res)=>{
-    // const tokenID = req.body.updateTokenId;
     const courseName = req.body.courseName;
     const section = req.body.section;
     const type = req.body.type;

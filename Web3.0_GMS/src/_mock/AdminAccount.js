@@ -1,11 +1,15 @@
 import profilePhoto from '../assets/images/avatars/avatar_default.jpg';
+import User from '../shareInfo/userInfo';
+
+const user = User.getInstance();
+console.log("교수 -> " + user.name);
+
 
 const account = {
-    displayName: '고윤민',
-    department: '전산전자공학부',
-    studentID: '12345',
-    email: 'iamGD@handong.ac.kr',
-    photoURL: {profilePhoto}
+    displayName: user.name,
+    department: user.department,
+    studentID: user.address,
+    email: user.email,
   };
   
   export default account;

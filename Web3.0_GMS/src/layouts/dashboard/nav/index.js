@@ -6,7 +6,7 @@ import { styled, alpha } from '@mui/material/styles';
 // import { Box, Link, Button, Drawer, Typography, Avatar, Stack } from '@mui/material';      // original code
 import { Box, Link, Drawer, Typography, Avatar} from '@mui/material';                         // transform
 // mock
-import account from '../../../_mock/account';
+// import account from '../../../_mock/account';
 // hooks
 import useResponsive from '../../../hooks/useResponsive';
 // components
@@ -15,6 +15,8 @@ import Scrollbar from '../../../components/scrollbar';
 import NavSection from '../../../components/nav-section';
 //
 import navConfig from './config';
+import User from '../../../shareInfo/userInfo';
+
 
 // ----------------------------------------------------------------------
 
@@ -40,6 +42,12 @@ export default function Nav({ openNav, onCloseNav }) {
 
   const isDesktop = useResponsive('up', 'lg');
 
+
+  // 공용 정보
+  const user = User.getInstance();
+
+  console.log("핼프 미 -> " + user.name);
+
   useEffect(() => {
     if (openNav) {
       onCloseNav();
@@ -61,18 +69,17 @@ export default function Nav({ openNav, onCloseNav }) {
       <Box sx={{ mb: 5, mx: 2.5 }}>
         <Link underline="none">
           <StyledAccount>
-            <Avatar src={account.photoURL} alt="photoURL" />
-
+            {/* <Avatar src={account.photoURL} alt="photoURL" /> */}
             <Box sx={{ ml: 2 }}>
               <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
-                {account.displayName}
-                ({account.studentID})
+                {user.name}
+                ({user.id})
               </Typography>
               <Typography variant="subtitle2" sx={{ color: 'text.primary' }}>
-                {account.department}
+                {user.department}
               </Typography>
               <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-                {account.role}
+                {/* {account.role} */}
               </Typography>
             </Box>
           </StyledAccount>
